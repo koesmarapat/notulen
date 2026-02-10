@@ -844,7 +844,7 @@
                 let linkHtml = `<span class="text-slate-600 font-bold text-xs cursor-default" title="Belum Final">${item.agenda} <i class="fa-solid fa-lock ml-1 text-slate-300"></i></span>`;
                 let statusBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-bold border border-amber-200">Terjadwal</span>`;
                 
-                // --- PDF LINK LOGIC ---
+                // --- PDF LINK LOGIC UPDATED ---
                 let pdfUrl = '#';
                 let pdfBtnClass = 'text-slate-200 cursor-not-allowed pointer-events-none';
                 let pdfTarget = '';
@@ -854,14 +854,10 @@
                     linkHtml = `<a href="${item.linkFinal}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>`;
                     statusBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold border border-indigo-200">Final (Doc)</span>`;
                     
-                    // Construct PDF Link
-                    const match = item.linkFinal.match(/\/d\/(.+?)\/|id=(.+?)(&|$)/);
-                    const fileId = match ? (match[1] || match[2]) : null;
-                    if(fileId) {
-                        pdfUrl = `https://docs.google.com/document/d/${fileId}/export?format=pdf`;
-                        pdfBtnClass = 'text-slate-400 hover:text-red-600';
-                        pdfTarget = '_blank';
-                    }
+                    // --- NEW LOGIC: USE LINK DIRECTLY (NO EXPORT CONVERSION) ---
+                    pdfUrl = item.linkFinal; // Gunakan link apa adanya dari backend
+                    pdfBtnClass = 'text-slate-400 hover:text-red-600';
+                    pdfTarget = '_blank';
                 }
 
                 let actions = '-';
@@ -872,12 +868,12 @@
                         <button onclick="viewAttendance('${item.id}', '${item.agenda}', '${item.displayTanggal}', '${item.waktu}', this)" class="text-slate-400 hover:text-green-600" title="Hadir"><i class="fa-solid fa-users"></i></button>
                         <button onclick="generateDoc('${item.id}', this)" class="text-slate-400 hover:text-blue-800" title="Generate Doc"><i class="fa-solid fa-file-word"></i></button>
                         
-                        <!-- PDF BUTTON ADDED HERE -->
+                        <!-- PDF BUTTON (Using Direct Link) -->
                         <a href="${pdfUrl}" target="${pdfTarget}" class="${pdfBtnClass}" title="Download PDF"><i class="fa-solid fa-file-pdf"></i></a>
 
                         <button onclick="showQrResult('${item.linkFinal}')" class="${hasFinal ? 'text-slate-400 hover:text-purple-600' : 'text-slate-200 cursor-not-allowed'}" ${!hasFinal ? 'disabled' : ''} title="QR Hasil"><i class="fa-solid fa-qrcode text-purple-600"></i></button>
                         
-                        <!-- BUTTON BROADCAST (NEW - EMAIL & WA) -->
+                        <!-- BUTTON BROADCAST -->
                         <button onclick="broadcastResult('${item.id}', this)" class="${hasFinal ? 'text-slate-400 hover:text-blue-600' : 'text-slate-200 cursor-not-allowed'}" ${!hasFinal ? 'disabled' : ''} title="Broadcast Email"><i class="fa-solid fa-paper-plane"></i></button>
                         
                         <button onclick="editNotulen('${encodeURIComponent(JSON.stringify(item))}')" class="text-blue-600 text-xs font-bold border border-blue-100 bg-blue-50 px-2 py-1 rounded ml-1">Edit</button>
@@ -904,15 +900,12 @@
                 let pdfTarget = '';
                 const hasFinal = item.linkFinal && item.linkFinal.length > 5;
 
-                if(item.linkFinal && item.linkFinal.length > 5) {
+                if(hasFinal) {
                     title = `<a href="${item.linkFinal}" target="_blank" class="text-blue-600 underline">${item.agenda}</a>`;
-                    const match = item.linkFinal.match(/\/d\/(.+?)\/|id=(.+?)(&|$)/);
-                    const fileId = match ? (match[1] || match[2]) : null;
-                    if(fileId) {
-                        pdfUrl = `https://docs.google.com/document/d/${fileId}/export?format=pdf`;
-                        pdfBtnClass = 'text-red-500'; // Red specific for mobile to stand out or match icons
-                        pdfTarget = '_blank';
-                    }
+                    // NEW LOGIC: USE DIRECT LINK
+                    pdfUrl = item.linkFinal;
+                    pdfBtnClass = 'text-red-500'; 
+                    pdfTarget = '_blank';
                 }
 
                 let statusBadge = hasFinal ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold">Final</span>` : `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-bold">Terjadwal</span>`;
@@ -926,7 +919,7 @@
                                 <button onclick="viewAttendance('${item.id}', '${item.agenda}', '${item.displayTanggal}', '${item.waktu}', this)"><i class="fa-solid fa-users"></i></button>
                                 <button onclick="generateDoc('${item.id}', this)"><i class="fa-solid fa-file-word"></i></button>
                                 
-                                <!-- PDF Mobile -->
+                                <!-- PDF Mobile (Direct Link) -->
                                 <a href="${pdfUrl}" target="${pdfTarget}" class="${pdfBtnClass}"><i class="fa-solid fa-file-pdf"></i></a>
 
                                 <button onclick="showQrResult('${item.linkFinal}')" ${!hasFinal ? 'disabled class="text-slate-200"' : 'class="text-purple-600"'}><i class="fa-solid fa-qrcode"></i></button>
@@ -1682,14 +1675,10 @@
             if (currentPublicMeeting && currentPublicMeeting.linkFinal && currentPublicMeeting.linkFinal.length > 5) {
                 hasResult = true;
                 
-                // --- NEW LOGIC START: DIRECT PDF EXPORT ---
-                let finalUrl = currentPublicMeeting.linkFinal;
-                const match = finalUrl.match(/\/d\/(.+?)\/|id=(.+?)(&|$)/);
-                const fileId = match ? (match[1] || match[2]) : null;
-                if(fileId) {
-                    finalUrl = `https://docs.google.com/document/d/${fileId}/export?format=pdf`;
-                }
-                // --- NEW LOGIC END ---
+                // --- UPDATE PENTING: Gunakan Link Asli dari Backend ---
+                // Tidak lagi memaksa mengubah link menjadi /export?format=pdf
+                // Karena backend sekarang sudah memberikan link file PDF fisik
+                const finalUrl = currentPublicMeeting.linkFinal;
 
                 const pdfHtml = `
                     <a href="${finalUrl}" target="_blank" class="block w-full p-4 bg-white border border-indigo-100 hover:border-indigo-300 rounded-xl shadow-sm hover:shadow-md transition flex items-center gap-4 group">
