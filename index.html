@@ -844,19 +844,39 @@
                 let linkHtml = `<span class="text-slate-600 font-bold text-xs cursor-default" title="Belum Final">${item.agenda} <i class="fa-solid fa-lock ml-1 text-slate-300"></i></span>`;
                 let statusBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-bold border border-amber-200">Terjadwal</span>`;
                 
-                // --- PDF LINK LOGIC UPDATED ---
                 let pdfUrl = '#';
+                let docUrl = '#';
                 let pdfBtnClass = 'text-slate-200 cursor-not-allowed pointer-events-none';
                 let pdfTarget = '';
                 const hasFinal = item.linkFinal && item.linkFinal.length > 5;
 
                 if(hasFinal) {
-                    linkHtml = `<a href="${item.linkFinal}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>`;
-                    statusBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold border border-indigo-200">Final (Doc)</span>`;
+                    // Try parsing JSON (New Format {doc:..., pdf:...})
+                    let finalLinks = null;
+                    try {
+                        if(item.linkFinal.trim().startsWith('{')) {
+                            finalLinks = JSON.parse(item.linkFinal);
+                        }
+                    } catch(e) {}
+
+                    if(finalLinks && finalLinks.doc) {
+                        // NEW FORMAT
+                        docUrl = finalLinks.doc;
+                        pdfUrl = finalLinks.pdf;
+                        
+                        // Agenda Link -> Open GDoc
+                        linkHtml = `<a href="${docUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pen text-[10px]"></i></a>`;
+                    } else {
+                        // OLD FORMAT (linkFinal IS PDF URL)
+                        pdfUrl = item.linkFinal;
+                        // Agenda Link -> Open PDF (Legacy behavior fallback)
+                        linkHtml = `<a href="${pdfUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pdf text-[10px]"></i></a>`;
+                    }
+
+                    statusBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold border border-indigo-200">Final</span>`;
                     
-                    // --- NEW LOGIC: USE LINK DIRECTLY (NO EXPORT CONVERSION) ---
-                    pdfUrl = item.linkFinal; // Gunakan link apa adanya dari backend
-                    pdfBtnClass = 'text-slate-400 hover:text-red-600';
+                    // PDF Button always opens PDF
+                    pdfBtnClass = 'text-red-500 hover:text-red-700';
                     pdfTarget = '_blank';
                 }
 
@@ -871,7 +891,7 @@
                         <!-- PDF BUTTON (Using Direct Link) -->
                         <a href="${pdfUrl}" target="${pdfTarget}" class="${pdfBtnClass}" title="Download PDF"><i class="fa-solid fa-file-pdf"></i></a>
 
-                        <button onclick="showQrResult('${item.linkFinal}')" class="${hasFinal ? 'text-slate-400 hover:text-purple-600' : 'text-slate-200 cursor-not-allowed'}" ${!hasFinal ? 'disabled' : ''} title="QR Hasil"><i class="fa-solid fa-qrcode text-purple-600"></i></button>
+                        <button onclick="showQrResult('${item.id}')" class="${hasFinal ? 'text-slate-400 hover:text-purple-600' : 'text-slate-200 cursor-not-allowed'}" ${!hasFinal ? 'disabled' : ''} title="QR Hasil"><i class="fa-solid fa-qrcode text-purple-600"></i></button>
                         
                         <!-- BUTTON BROADCAST -->
                         <button onclick="broadcastResult('${item.id}', this)" class="${hasFinal ? 'text-slate-400 hover:text-blue-600' : 'text-slate-200 cursor-not-allowed'}" ${!hasFinal ? 'disabled' : ''} title="Broadcast Email"><i class="fa-solid fa-paper-plane"></i></button>
@@ -892,18 +912,30 @@
                 const isOwner = (item.pencatatEmail === currentUser.email);
                 const isAdmin = (currentUser.role === 'ADMIN');
                 const canEdit = (isAdmin || isOwner);
-                let title = item.agenda;
                 
-                // Re-calculate PDF Logic for Mobile loop
                 let pdfUrl = '#';
+                let docUrl = '#';
                 let pdfBtnClass = 'text-slate-200 cursor-not-allowed pointer-events-none';
                 let pdfTarget = '';
+                let title = item.agenda;
                 const hasFinal = item.linkFinal && item.linkFinal.length > 5;
 
                 if(hasFinal) {
-                    title = `<a href="${item.linkFinal}" target="_blank" class="text-blue-600 underline">${item.agenda}</a>`;
-                    // NEW LOGIC: USE DIRECT LINK
-                    pdfUrl = item.linkFinal;
+                    let finalLinks = null;
+                    try {
+                        if(item.linkFinal.trim().startsWith('{')) {
+                            finalLinks = JSON.parse(item.linkFinal);
+                        }
+                    } catch(e) {}
+
+                    if(finalLinks && finalLinks.doc) {
+                        docUrl = finalLinks.doc;
+                        pdfUrl = finalLinks.pdf;
+                        title = `<a href="${docUrl}" target="_blank" class="text-blue-600 underline">${item.agenda}</a>`;
+                    } else {
+                        pdfUrl = item.linkFinal;
+                        title = `<a href="${pdfUrl}" target="_blank" class="text-blue-600 underline">${item.agenda}</a>`;
+                    }
                     pdfBtnClass = 'text-red-500'; 
                     pdfTarget = '_blank';
                 }
@@ -922,7 +954,7 @@
                                 <!-- PDF Mobile (Direct Link) -->
                                 <a href="${pdfUrl}" target="${pdfTarget}" class="${pdfBtnClass}"><i class="fa-solid fa-file-pdf"></i></a>
 
-                                <button onclick="showQrResult('${item.linkFinal}')" ${!hasFinal ? 'disabled class="text-slate-200"' : 'class="text-purple-600"'}><i class="fa-solid fa-qrcode"></i></button>
+                                <button onclick="showQrResult('${item.id}')" ${!hasFinal ? 'disabled class="text-slate-200"' : 'class="text-purple-600"'}><i class="fa-solid fa-qrcode"></i></button>
                                 <button onclick="broadcastResult('${item.id}', this)" ${!hasFinal ? 'disabled class="text-slate-200"' : 'class="text-blue-600"'}><i class="fa-solid fa-paper-plane"></i></button>
                              </div>
                              <button onclick="editNotulen('${encodeURIComponent(JSON.stringify(item))}')" class="text-xs font-bold text-blue-600 border px-3 py-1 rounded">Edit</button>
@@ -981,8 +1013,21 @@
             document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(window.location.origin + window.location.pathname + '?v=absensi&id=' + id)}`; 
         }
         
-        function showQrResult(url) {
-            if(!url || url.length < 5) return;
+        function showQrResult(id) {
+            // Need to retrieve full data to get links
+            const item = allData.find(x => x.id === id);
+            if(!item || !item.linkFinal || item.linkFinal.length < 5) return;
+            
+            let url = item.linkFinal;
+            // Parse JSON if needed
+            try {
+                if(url.trim().startsWith('{')) {
+                    const obj = JSON.parse(url);
+                    // For QR result, PDF is safer for download
+                    url = obj.pdf;
+                }
+            } catch(e) {}
+
             document.getElementById('modal-qrcode').classList.remove('hidden');
             document.getElementById('qr-modal-title').innerText = "QR Hasil Rapat";
             document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(url)}`;
@@ -1678,10 +1723,18 @@
                 // --- UPDATE PENTING: Gunakan Link Asli dari Backend ---
                 // Tidak lagi memaksa mengubah link menjadi /export?format=pdf
                 // Karena backend sekarang sudah memberikan link file PDF fisik
-                const finalUrl = currentPublicMeeting.linkFinal;
+                
+                let pdfUrl = currentPublicMeeting.linkFinal;
+                // Parse JSON if needed
+                try {
+                    if(pdfUrl.trim().startsWith('{')) {
+                        const obj = JSON.parse(pdfUrl);
+                        pdfUrl = obj.pdf; // For portal result, we prefer PDF
+                    }
+                } catch(e) {}
 
                 const pdfHtml = `
-                    <a href="${finalUrl}" target="_blank" class="block w-full p-4 bg-white border border-indigo-100 hover:border-indigo-300 rounded-xl shadow-sm hover:shadow-md transition flex items-center gap-4 group">
+                    <a href="${pdfUrl}" target="_blank" class="block w-full p-4 bg-white border border-indigo-100 hover:border-indigo-300 rounded-xl shadow-sm hover:shadow-md transition flex items-center gap-4 group">
                         <div class="w-10 h-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition"><i class="fa-solid fa-file-pdf"></i></div>
                         <div class="text-left overflow-hidden">
                             <h4 class="font-bold text-slate-800 truncate">Notulen Resmi (PDF)</h4>
