@@ -137,11 +137,6 @@
         <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-float" style="animation-delay: 2s"></div>
 
         <div class="z-10 w-full max-w-md perspective-1000">
-            <!-- 
-                DESAIN BARU: PREMIUM FROST 
-                - Menggunakan vanilla-tilt untuk efek 3D saat mouse bergerak
-                - Menghapus border pelangi kasar, diganti dengan border halus dan shadow
-            -->
             <div id="login-card" class="relative bg-white/10 backdrop-blur-xl border border-white/20 p-10 rounded-[2rem] text-center shadow-2xl overflow-hidden group" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
                 
                 <!-- Glow effect inside card -->
@@ -839,7 +834,14 @@
                 const isOwner = (item.pencatatEmail === currentUser.email);
                 const isAdmin = (currentUser.role === 'ADMIN');
                 const canEdit = (isAdmin || isOwner);
-                let linkHtml = `<span class="text-slate-600 font-bold text-xs cursor-default" title="Belum Final">${item.agenda} <i class="fa-solid fa-lock ml-1 text-slate-300"></i></span>`;
+                
+                // --- UPDATE: Opsi 1 - Menampilkan Creator (Desktop & Mobile) ---
+                const creatorName = item.pencatatNama || 'System';
+                const creatorHtml = `<div class="text-[10px] text-slate-400 mt-1 font-normal flex items-center gap-1"><i class="fa-solid fa-user-pen text-slate-300"></i> ${creatorName}</div>`;
+
+                // Default Link Html
+                let linkHtml = `<div class="flex flex-col"><span class="text-slate-600 font-bold text-xs cursor-default" title="Belum Final">${item.agenda} <i class="fa-solid fa-lock ml-1 text-slate-300"></i></span>${creatorHtml}</div>`;
+                
                 let statusBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-bold border border-amber-200">Terjadwal</span>`;
                 
                 let pdfUrl = '#';
@@ -863,12 +865,12 @@
                         pdfUrl = finalLinks.pdf;
                         
                         // Agenda Link -> Open GDoc
-                        linkHtml = `<a href="${docUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pen text-[10px]"></i></a>`;
+                        linkHtml = `<div class="flex flex-col"><a href="${docUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pen text-[10px]"></i></a>${creatorHtml}</div>`;
                     } else {
                         // OLD FORMAT (linkFinal IS PDF URL)
                         pdfUrl = item.linkFinal;
                         // Agenda Link -> Open PDF (Legacy behavior fallback)
-                        linkHtml = `<a href="${pdfUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pdf text-[10px]"></i></a>`;
+                        linkHtml = `<div class="flex flex-col"><a href="${pdfUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pdf text-[10px]"></i></a>${creatorHtml}</div>`;
                     }
 
                     statusBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold border border-indigo-200">Final</span>`;
@@ -906,6 +908,7 @@
                     <td class="px-6 py-4 align-top text-center">${actions}</td>
                 </tr>`;
             }).join('');
+            
             const cardRows = pageData.map(item => {
                 const isOwner = (item.pencatatEmail === currentUser.email);
                 const isAdmin = (currentUser.role === 'ADMIN');
@@ -962,7 +965,13 @@
                 return `<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-start mb-2"><span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-500">${item.displayTanggal}</span> ${statusBadge}</div>
                     <h3 class="font-bold text-lg text-slate-800 mb-1">${title}</h3>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wide mb-1">Unit: ${item.unit}</p>
+                    
+                    <div class="flex items-center gap-3 mb-2">
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wide">Unit: ${item.unit}</p>
+                        <span class="text-slate-300">|</span>
+                        <p class="text-[10px] text-slate-400"><i class="fa-solid fa-user-pen mr-1"></i> ${item.pencatatNama || 'System'}</p>
+                    </div>
+
                     ${mobileActions}
                 </div>`;
             }).join('');
