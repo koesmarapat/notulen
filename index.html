@@ -1006,8 +1006,15 @@
         function copyAbsensiLink(id) { const url = `${window.location.origin}${window.location.pathname}?v=absensi&id=${id}`; navigator.clipboard.writeText(url).then(() => Toast.fire({icon:'success', title:'Link Absensi Disalin'})); }
         
         function showQrCode(id) { 
+            const item = allData.find(x => x.id === id);
             document.getElementById('modal-qrcode').classList.remove('hidden'); 
-            document.getElementById('qr-modal-title').innerText = "QR Absensi dan Hasil rapat";
+            
+            if (item) {
+                document.getElementById('qr-modal-title').innerHTML = `QR Absensi dan Hasil rapat<br><span class="text-base md:text-lg text-slate-500 font-medium block mt-2">[${item.agenda}, ${item.displayTanggal}]</span>`;
+            } else {
+                document.getElementById('qr-modal-title').innerText = "QR Absensi dan Hasil rapat";
+            }
+
             document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(window.location.origin + window.location.pathname + '?v=absensi&id=' + id)}`; 
         }
         
