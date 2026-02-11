@@ -896,6 +896,9 @@
                         <!-- BUTTON BROADCAST -->
                         <button onclick="broadcastResult('${item.id}', this)" class="${hasFinal ? 'text-slate-400 hover:text-blue-600' : 'text-slate-200 cursor-not-allowed'}" ${!hasFinal ? 'disabled' : ''} title="Broadcast Email"><i class="fa-solid fa-paper-plane"></i></button>
                         
+                        <!-- NEW ZIP BUTTON -->
+                        <button onclick="downloadZip('${item.id}', this)" class="text-purple-500 hover:text-purple-700" title="Download ZIP (Semua File)"><i class="fa-solid fa-file-zipper"></i></button>
+
                         <button onclick="editNotulen('${encodeURIComponent(JSON.stringify(item))}')" class="text-blue-600 text-xs font-bold border border-blue-100 bg-blue-50 px-2 py-1 rounded ml-1">Edit</button>
                         ${isAdmin ? `<button onclick="deleteNotulen('${item.id}', this)" class="text-red-500 hover:text-red-700 ml-1"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </div>`;
@@ -957,6 +960,7 @@
 
                                 <button onclick="showQrResult('${item.id}')" ${!hasFinal ? 'disabled class="text-slate-200"' : 'class="text-purple-600"'}><i class="fa-solid fa-qrcode"></i></button>
                                 <button onclick="broadcastResult('${item.id}', this)" ${!hasFinal ? 'disabled class="text-slate-200"' : 'class="text-blue-600"'}><i class="fa-solid fa-paper-plane"></i></button>
+                                <button onclick="downloadZip('${item.id}', this)" class="text-purple-500 hover:text-purple-700"><i class="fa-solid fa-file-zipper"></i></button>
                              </div>
                              <button onclick="editNotulen('${encodeURIComponent(JSON.stringify(item))}')" class="text-xs font-bold text-blue-600 border px-3 py-1 rounded">Edit</button>
                          </div>
@@ -1199,6 +1203,32 @@
                     });
                 }
             })
+        }
+
+        // --- NEW FUNCTION: DOWNLOAD ZIP ---
+        function downloadZip(id, btn) {
+            setBtnLoading(btn, true); // Loading state on button
+            
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'downloadZip', id: id }) 
+            })
+            .then(res => res.json())
+            .then(resp => {
+                setBtnLoading(btn, false);
+                if(resp.status === 'success') {
+                    // Open the download URL in a new tab
+                    window.open(resp.url, '_blank');
+                    Toast.fire({ icon: 'success', title: 'Mendownload ZIP...' });
+                } else {
+                    Swal.fire('Gagal', resp.message, 'error');
+                }
+            })
+            .catch(err => {
+                setBtnLoading(btn, false);
+                console.error("ZIP Error:", err);
+                Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+            });
         }
 
         function deleteNotulen(id, btn) {
