@@ -15,6 +15,9 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Marked.js untuk parsing Markdown dari AI -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -25,10 +28,12 @@
                         'fade-in': 'fadeIn 0.5s ease-out',
                         'slide-up': 'slideUp 0.5s ease-out',
                         'bounce-slow': 'bounce 3s infinite',
+                        'chat-pop': 'chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        chatPop: { '0%': { opacity: '0', transform: 'scale(0.9) translateY(20px)' }, '100%': { opacity: '1', transform: 'scale(1) translateY(0)' } }
                     }
                 }
             }
@@ -96,9 +101,25 @@
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        
+        /* Chat UI Markdown Styles */
+        .ai-message-content p { margin-bottom: 0.5rem; }
+        .ai-message-content p:last-child { margin-bottom: 0; }
+        .ai-message-content ul, .ai-message-content ol { margin-left: 1.2rem; margin-bottom: 0.5rem; list-style-type: disc; }
+        .ai-message-content li { margin-bottom: 0.25rem; }
+        .ai-message-content strong { color: #1e293b; font-weight: 700; }
+        
+        /* Loading Dots */
+        .typing-dot {
+            width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%;
+            display: inline-block; animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
 
     <!-- NAVBAR -->
     <header class="glass-header h-20 fixed top-0 w-full z-40 flex items-center justify-between px-6 lg:px-12 transition-all duration-300">
@@ -240,7 +261,7 @@
                 </div>
             </div>
             
-            <!-- CARD 7: RIWAYAT KEHADIRAN (NEW) -->
+            <!-- CARD 7: RIWAYAT KEHADIRAN -->
             <div onclick="openModal('modal-history')" class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.7s;">
                 <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition transform group-hover:scale-125 duration-500">
                     <i class="fa-solid fa-clock-rotate-left text-8xl"></i>
@@ -269,7 +290,6 @@
         <div class="glass-card rounded-3xl p-3 md:p-6 overflow-hidden shadow-2xl shadow-blue-900/50 relative group">
             <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-600 opacity-20 blur group-hover:opacity-40 transition duration-1000"></div>
             <div class="relative w-full pb-[56.25%] h-0 rounded-2xl overflow-hidden border border-white/20 bg-black/50">
-                <!-- YouTube Iframe Fixed for Local/Restricted Envs -->
                 <iframe 
                     class="absolute top-0 left-0 w-full h-full z-10"
                     src="https://www.youtube.com/embed/ashYLrirM0U?rel=0" 
@@ -279,7 +299,6 @@
                     allowfullscreen>
                 </iframe>
             </div>
-            <!-- Fallback Link if Iframe Blocked -->
             <div class="text-center mt-4">
                 <a href="https://www.youtube.com/watch?v=ashYLrirM0U" target="_blank" class="inline-flex items-center gap-2 text-xs font-medium text-blue-300 hover:text-white transition">
                     <i class="fa-solid fa-external-link-alt"></i> Jika video tidak muncul, tonton langsung di YouTube
@@ -434,7 +453,7 @@
                 </div>
             </div>
 
-            <!-- FAQ 11 (NEW) -->
+            <!-- FAQ 11 -->
             <div class="faq-item glass-card rounded-xl overflow-hidden group">
                 <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
                     <span class="font-bold text-white group-hover:text-cyan-300 transition">11. Bagaimana cara melihat materi rapat yang pernah saya ikuti sebagai peserta?</span>
@@ -455,13 +474,12 @@
         <p>&copy; 2026 Bagian Administrasi dan Umum RSUD dr. R. Koesma Tuban</p>
     </footer>
 
-    <!-- ================= MODALS ================= -->
+    <!-- ================= MODALS & UI COMPONENTS ================= -->
 
-    <!-- MODAL: LOGIN -->
+    <!-- Modal Login -->
     <div id="modal-login" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-login')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-blue-50 p-8 border-b border-blue-100">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-right-to-bracket"></i></div>
@@ -471,7 +489,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-6">
                 <div class="flex gap-4">
                     <span class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm">1</span>
@@ -497,11 +514,10 @@
         </div>
     </div>
 
-    <!-- MODAL: JADWAL -->
+    <!-- Modal Jadwal -->
     <div id="modal-jadwal" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-jadwal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-emerald-50 p-8 border-b border-emerald-100">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-plus"></i></div>
@@ -511,10 +527,8 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-6">
                 <p class="text-sm text-slate-600">Fitur ini digunakan untuk mendaftarkan rapat baru ke dalam sistem agar link absensi dapat dibuat.</p>
-                
                 <ul class="space-y-4">
                     <li class="flex items-start gap-3 text-sm text-slate-700">
                         <i class="fa-solid fa-check-circle text-emerald-500 mt-1"></i>
@@ -536,11 +550,10 @@
         </div>
     </div>
 
-    <!-- MODAL: ABSENSI -->
+    <!-- Modal Absensi -->
     <div id="modal-absensi" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-absensi')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-indigo-50 p-8 border-b border-indigo-100">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-qrcode"></i></div>
@@ -550,7 +563,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -579,11 +591,10 @@
         </div>
     </div>
 
-    <!-- MODAL: NOTULEN -->
+    <!-- Modal Notulen -->
     <div id="modal-notulen" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-notulen')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-orange-50 p-8 border-b border-orange-100">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-orange-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-pen-nib"></i></div>
@@ -593,15 +604,12 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-4">
                 <p class="text-sm text-slate-600 mb-4">Sistem ini mendukung pencatatan notulen berbasis <strong>Matriks Masalah</strong> yang terintegrasi dengan Google Spreadsheet.</p>
-                
                 <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-2">Tombol "Buat Notulen Spreadsheet"</h4>
                     <p class="text-xs text-slate-600">Tombol hijau ini akan otomatis membuat file Google Sheet baru dari template standar RSUD. Anda bisa mengisi kolom: No, Uraian Masalah, Tindak Lanjut, PJ, dan Target Waktu di sana.</p>
                 </div>
-
                 <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-2">Dokumentasi</h4>
                     <p class="text-xs text-slate-600">Anda dapat mengunggah foto kegiatan atau melampirkan link materi rapat. File akan otomatis tersimpan di folder Google Drive rapat tersebut.</p>
@@ -613,11 +621,10 @@
         </div>
     </div>
 
-    <!-- MODAL: OUTPUT -->
+    <!-- Modal Output -->
     <div id="modal-output" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-output')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-cyan-50 p-8 border-b border-cyan-100">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-cyan-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-file-export"></i></div>
@@ -627,9 +634,7 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-6">
-                <!-- Doc Output -->
                 <div class="flex gap-4 items-start">
                     <div class="w-10 h-10 rounded bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-file-word"></i></div>
                     <div>
@@ -637,8 +642,6 @@
                         <p class="text-sm text-slate-600">Klik ikon <i class="fa-solid fa-file-word text-blue-800"></i> di daftar arsip. Sistem akan menggabungkan data rapat, daftar hadir, dan isi matriks spreadsheet menjadi satu dokumen laporan resmi yang siap cetak/TTD.</p>
                     </div>
                 </div>
-
-                <!-- Excel Output -->
                 <div class="flex gap-4 items-start">
                     <div class="w-10 h-10 rounded bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-file-excel"></i></div>
                     <div>
@@ -646,7 +649,6 @@
                         <p class="text-sm text-slate-600">Buka popup kehadiran, lalu klik tombol "Download Excel". File Excel akan berisi daftar hadir lengkap dengan <strong>Gambar Tanda Tangan</strong> yang tertempel rapi di kolomnya.</p>
                     </div>
                 </div>
-                
                 <div class="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 font-medium">
                     <i class="fa-brands fa-whatsapp mr-1"></i> Anda juga bisa membagikan hasil rapat langsung ke WhatsApp menggunakan tombol Broadcast.
                 </div>
@@ -657,11 +659,10 @@
         </div>
     </div>
 
-    <!-- MODAL: ADMIN -->
+    <!-- Modal Admin -->
     <div id="modal-admin" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-admin')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-slate-800 p-8 border-b border-slate-700 text-white">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-slate-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-user-shield"></i></div>
@@ -671,10 +672,8 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-4">
                 <p class="text-sm text-slate-600">Hanya user dengan role <strong>ADMIN</strong> yang dapat mengakses menu ini.</p>
-                
                 <div class="border border-slate-200 rounded-lg divide-y divide-slate-100">
                     <div class="p-3 flex items-center justify-between">
                         <span class="text-sm font-bold text-slate-700">Manajemen User</span>
@@ -696,11 +695,10 @@
         </div>
     </div>
 
-    <!-- MODAL: HISTORY (NEW) -->
+    <!-- Modal History -->
     <div id="modal-history" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
             <button onclick="closeModal('modal-history')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
-            
             <div class="bg-rose-50 p-8 border-b border-rose-100">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
@@ -710,15 +708,12 @@
                     </div>
                 </div>
             </div>
-            
             <div class="p-8 space-y-4">
                 <p class="text-sm text-slate-600 mb-4">Sebagai peserta biasa (meskipun bukan notulis/admin), Anda dapat melihat daftar semua rapat yang pernah Anda ikuti di aplikasi ini.</p>
-                
                 <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-envelope-circle-check text-rose-500 mr-2"></i>Syarat Utama</h4>
                     <p class="text-xs text-slate-600">Sistem mengenali Anda berdasarkan <strong>Email</strong>. Pastikan Anda selalu mengisi kolom Email (atau menggunakan fitur login/autofill Google) saat melakukan absensi digital agar riwayatnya otomatis masuk ke akun Anda.</p>
                 </div>
-
                 <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-download text-rose-500 mr-2"></i>Fitur Download Mandiri</h4>
                     <p class="text-xs text-slate-600">Melalui menu "Riwayat Kehadiran", Anda dapat langsung mengunduh <strong>Laporan Resmi (PDF)</strong> jika sudah diselesaikan oleh notulis, atau mengunduh seluruh materi presentasi rapat dalam format <strong>ZIP</strong>.</p>
@@ -730,13 +725,89 @@
         </div>
     </div>
 
+    <!-- ================= FITUR AI CHAT (NEW) ================= -->
+    
+    <!-- Floating Button AI -->
+    <button onclick="toggleAIChat()" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/40 hover:scale-110 hover:shadow-cyan-500/50 transition-all duration-300">
+        <i class="fa-solid fa-robot"></i>
+        <!-- Ping Indicator -->
+        <span class="absolute top-0 right-0 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500 border-2 border-white"></span>
+        </span>
+    </button>
+
+    <!-- Chat Window UI -->
+    <div id="ai-chat-window" class="fixed bottom-24 right-6 w-80 sm:w-96 max-w-[calc(100vw-3rem)] h-[500px] max-h-[calc(100vh-8rem)] bg-white/95 backdrop-blur-xl border border-white/40 shadow-2xl rounded-2xl flex flex-col z-50 hidden overflow-hidden transition-all duration-300 transform origin-bottom-right">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 to-blue-900 text-white p-4 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                    <i class="fa-solid fa-robot text-cyan-300"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm">Asisten AI E-Notulen</h4>
+                    <p class="text-[10px] text-blue-200 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Online</p>
+                </div>
+            </div>
+            <button onclick="toggleAIChat()" class="text-white/70 hover:text-white transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <!-- Chat Body (Messages) -->
+        <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+            <!-- Bot Welcome Message -->
+            <div class="flex gap-2 items-end">
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
+                    <i class="fa-solid fa-robot text-blue-600 text-xs"></i>
+                </div>
+                <div class="bg-white border border-slate-200 text-slate-700 text-sm p-3 rounded-2xl rounded-bl-sm shadow-sm max-w-[85%] ai-message-content">
+                    Halo! 👋 Saya Asisten AI E-Notulen RSUD. Ada yang bisa saya bantu terkait cara penggunaan aplikasi ini?
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator (Hidden by default) -->
+        <div id="ai-typing-indicator" class="px-4 pb-2 hidden">
+            <div class="flex gap-2 items-end">
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
+                    <i class="fa-solid fa-robot text-blue-600 text-xs"></i>
+                </div>
+                <div class="bg-white border border-slate-200 p-3 rounded-2xl rounded-bl-sm shadow-sm flex gap-1 items-center h-10">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="p-3 bg-white border-t border-slate-200 shrink-0">
+            <form id="ai-chat-form" onsubmit="handleAIChatSubmit(event)" class="relative flex items-center">
+                <input type="text" id="ai-chat-input" placeholder="Ketik pertanyaan Anda..." autocomplete="off" class="w-full bg-slate-100 text-sm text-slate-700 rounded-full pl-4 pr-12 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 border border-transparent focus:border-blue-300 transition-all">
+                <button type="submit" id="ai-chat-send-btn" class="absolute right-1 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+            <div class="text-center mt-2">
+                <p class="text-[9px] text-slate-400">Didukung oleh Google Gemini AI</p>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script>
+        // ==========================================
+        // MENGGUNAKAN API_URL YANG SAMA DENGAN INDEX.HTML
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbz9g_X8LVXVFJv6ZBBA1erbHxDKP-i3rtsq5Z_urb6wFd92izi-XbTKXe9AVAwhOflpVA/exec"; 
+
+        // Fungsi Bawaan (Modals, Accordion, Observer)
         function openModal(id) {
             const modal = document.getElementById(id);
             if(modal) {
                 modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Prevent background scroll
+                document.body.style.overflow = 'hidden'; 
             }
         }
 
@@ -744,26 +815,17 @@
             const modal = document.getElementById(id);
             if(modal) {
                 modal.classList.add('hidden');
-                document.body.style.overflow = 'auto'; // Restore scroll
+                document.body.style.overflow = 'auto'; 
             }
         }
 
         function toggleFaq(btn) {
-            // Close all other active items first (optional, for accordion style)
             const allItems = document.querySelectorAll('.faq-item');
             const parentItem = btn.parentElement;
-
-            allItems.forEach(item => {
-                if(item !== parentItem) {
-                    item.classList.remove('active');
-                }
-            });
-
-            // Toggle current
+            allItems.forEach(item => { if(item !== parentItem) item.classList.remove('active'); });
             parentItem.classList.toggle('active');
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.classList.add('hidden');
@@ -771,7 +833,6 @@
             }
         }
         
-        // Add scroll animation observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -781,9 +842,101 @@
             });
         });
 
-        document.querySelectorAll('.animate-slide-up').forEach((el) => {
-            observer.observe(el);
-        });
+        document.querySelectorAll('.animate-slide-up').forEach((el) => { observer.observe(el); });
+
+        // ==========================================
+        // FUNGSI AI CHAT (Terhubung ke gas.gs)
+        // ==========================================
+        const chatWindow = document.getElementById('ai-chat-window');
+        const chatMessages = document.getElementById('ai-chat-messages');
+        const chatInput = document.getElementById('ai-chat-input');
+        const typingIndicator = document.getElementById('ai-typing-indicator');
+        const sendBtn = document.getElementById('ai-chat-send-btn');
+
+        function toggleAIChat() {
+            if (chatWindow.classList.contains('hidden')) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('animate-chat-pop');
+                setTimeout(() => chatInput.focus(), 100);
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('animate-chat-pop');
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function appendMessage(sender, text) {
+            const wrapper = document.createElement('div');
+            
+            if (sender === 'user') {
+                wrapper.className = "flex gap-2 items-end justify-end";
+                wrapper.innerHTML = `
+                    <div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-sm shadow-sm max-w-[85%] break-words">
+                        ${text}
+                    </div>
+                `;
+            } else {
+                // Parse Markdown untuk respons AI menggunakan Marked.js
+                const parsedText = marked.parse(text);
+                wrapper.className = "flex gap-2 items-end";
+                wrapper.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
+                        <i class="fa-solid fa-robot text-blue-600 text-xs"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 text-slate-700 text-sm p-3 rounded-2xl rounded-bl-sm shadow-sm max-w-[85%] break-words ai-message-content">
+                        ${parsedText}
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        async function handleAIChatSubmit(e) {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Tambahkan pesan user ke UI
+            appendMessage('user', message);
+            chatInput.value = '';
+
+            // Tampilkan typing indicator
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+            sendBtn.disabled = true;
+
+            try {
+                // Kirim request ke backend (gas.gs) menggunakan action "ai_chat"
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'ai_chat', 
+                        prompt: message 
+                    }),
+                });
+                
+                const result = await response.json();
+                
+                typingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+
+                if (result.status === 'success') {
+                    appendMessage('ai', result.reply);
+                } else {
+                    appendMessage('ai', "Maaf, terjadi kesalahan: " + result.message);
+                }
+            } catch (err) {
+                typingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+                appendMessage('ai', "Maaf, gagal menghubungi server AI. Pastikan koneksi internet stabil.");
+                console.error("AI Chat Error:", err);
+            }
+        }
     </script>
 </body>
 </html>
