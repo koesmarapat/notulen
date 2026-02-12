@@ -3,20 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Presentasi E - NOTULEN</title>
+<title>Panduan Penggunaan E-NOTULEN</title>
 <style>
-    /* Base Styles - Dark Mode Presentation Style */
+    /* Dasar - Style Presentasi Modern Dark Mode ala NotebookLLM */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #0f172a; /* Slate-900 like generic RSUD theme */
+        background-color: #0f172a; 
         color: #f8fafc;
         height: 100vh;
         width: 100vw;
         overflow: hidden;
     }
 
-    /* Container */
     #mindmap-container {
         width: 100%;
         height: 100%;
@@ -31,20 +30,20 @@
         background: #0f172a;
     }
     
-    /* Text Styling */
+    /* Warna Teks Node */
     .markmap-node-text {
         fill: #f8fafc;
         font-weight: 500;
-        font-size: 16px; /* Slightly larger for presentation */
+        font-size: 16px;
     }
     
-    /* Paths */
+    /* Garis Penghubung Dibuat Lebih Jelas */
     .markmap-link {
-        stroke: #475569;
-        stroke-width: 2px;
+        stroke-width: 2.5px;
+        opacity: 0.9;
     }
 
-    /* Floating Toolbar */
+    /* Toolbar Melayang */
     .toolbar {
         position: absolute;
         bottom: 30px;
@@ -75,11 +74,11 @@
     }
     
     .toolbar button:hover {
-        background: #3b82f6; /* Blue hover */
+        background: #0ea5e9;
         transform: translateY(-2px);
     }
 
-    /* Styles untuk Tombol Kembali (Back Button) */
+    /* Tombol Kembali */
     .btn-back {
         position: fixed;
         bottom: 30px;
@@ -89,8 +88,8 @@
         align-items: center;
         gap: 10px;
         padding: 12px 24px;
-        background-color: rgba(30, 41, 59, 0.6); /* Transparan */
-        color: rgba(255, 255, 255, 0.7);
+        background-color: rgba(30, 41, 59, 0.8);
+        color: white;
         text-decoration: none;
         border-radius: 50px;
         font-size: 14px;
@@ -98,24 +97,19 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(8px);
         transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .btn-back:hover {
-        background-color: rgba(59, 130, 246, 0.9); /* Biru saat hover */
-        color: white;
+        background-color: #3b82f6;
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        border-color: rgba(59, 130, 246, 0.5);
     }
 
     .btn-back svg {
         width: 18px;
         height: 18px;
-        background: none; /* Reset background svg global */
+        background: none;
     }
 
-    /* Loader */
     #loader {
         position: fixed;
         top: 50%;
@@ -126,7 +120,7 @@
         letter-spacing: 2px;
         animation: pulse 1.5s infinite;
     }
-    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -136,78 +130,63 @@
 </head>
 <body>
 
-    <div id="loader">MEMUAT PRESENTASI...</div>
+    <div id="loader">MENYUSUN CABANG PANDUAN...</div>
+    
     <div id="mindmap-container">
         <svg id="markmap"></svg>
     </div>
     
-    <!-- Tombol Kembali ke Bantuan (FIXED & ESTETIK) -->
     <a href="help.html" class="btn-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        Kembali
+        Kembali ke Bantuan
     </a>
 
     <div class="toolbar">
-        <button onclick="zoomOut()" title="Zoom Out"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-        <button onclick="zoomIn()" title="Zoom In"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-        <button onclick="fitView()" title="Reset View"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg></button>
+        <button onclick="zoomOut()" title="Perkecil"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <button onclick="zoomIn()" title="Perbesar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <button onclick="fitView()" title="Reset Tampilan"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg></button>
     </div>
 
 <script>
-    // --- KONTEN PRESENTASI (MARKDOWN) ---
+    // --- KONTEN PANDUAN DENGAN SUB-NODE (GARIS KE RINCIAN) ---
     const markdownContent = `
 # **E - NOTULEN**
-## **Apa itu E-Notulen?**
-### **Definisi**
-- Sistem Informasi **Manajemen Rapat Digital**
-- Terintegrasi, Real-time, dan *Paperless*
-- Pengganti sistem notulen manual (Kertas)
-### **Tujuan**
-- Mempercepat distribusi hasil rapat
-- Memudahkan pencarian arsip (Terdokumentasi)
-- Efisiensi anggaran (Hemat Kertas & Tinta)
+## **👤 BAGIAN 1: UNTUK NOTULIS**
+### **1. Membuat Jadwal Rapat**
+#### Klik menu **"Buat Jadwal"**
+#### Input Agenda, Unit, Tanggal & Waktu
+#### **Upload Undangan** asli (PDF/Gambar)
+#### *Otomatisasi Folder GDrive & GSheet*
+### **2. Memberikan Link Absensi**
+#### Buka menu **"Arsip Notulen"**
+#### Klik ikon **QR Code** rapat terkait
+#### Tampilkan di proyektor untuk peserta
+### **3. Menulis Notulensi Rapat**
+#### Buka menu **"Tulis Notulen"**
+#### Isi **Matriks Masalah** (Google Sheet)
+#### Upload foto **Dokumentasi Kegiatan**
+#### Klik **"Generate Doc"** untuk laporan final
 
-## **Alur Penggunaan**
-### **1. Penjadwalan (Notulis)**
-- Input Agenda & Upload Undangan
-- Sistem otomatis buat **Folder GDrive**
-### **2. Pelaksanaan & Absensi**
-- Peserta scan **QR Code**
-- Auto-fill via **Akun Google**
-- **Tanda Tangan Digital** di layar HP
-### **3. Pencatatan (Notulis)**
-- Isi form **Matriks Masalah** (Google Sheet)
-- Upload foto dokumentasi ke sistem
-### **4. Finalisasi Output**
-- Generate **Laporan Resmi (Doc/PDF)** otomatis
-- Download **Excel Daftar Hadir** (Besi TTD)
-- Broadcast portal hasil ke email peserta
-
-## **Fitur Unggulan**
-### **Riwayat Kehadiran (Peserta) 🌟**
-- Peserta dapat melihat history rapat yang diikuti
-- Download mandiri materi & laporan PDF
-### **Otomatisasi Dokumen**
-- Integrasi GSheet & GDoc jadi 1 Laporan Resmi
-- Template laporan standar rumah sakit
-### **Keamanan & Aksesibilitas**
-- *One Meeting One Folder*
-- Login aman via SSO Google
-- Role Based Access (Admin & User)
-
-## **Dampak Positif**
-### **Efisiensi & Ekologi**
-- Mengurangi penggunaan kertas (*Go Green*)
-- Menghemat waktu administrasi tata usaha
-### **Transparansi**
-- Hasil rapat dapat diakses semua peserta
-- Tindak lanjut rapat (PJ & Target) termonitor jelas
+## **👥 BAGIAN 2: UNTUK PESERTA**
+### **1. Mengisi Absensi Digital**
+#### Scan **QR Code** di lokasi rapat
+#### Gunakan fitur **"Continue with Google"**
+#### Lakukan **Tanda Tangan Digital**
+#### Klik **"Konfirmasi Kehadiran"**
+### **2. Melihat Hasil Rapat**
+#### **A. Melalui Link Share**
+##### Gunakan link yang dishare Notulis
+##### Klik menu **"Lihat Hasil Rapat"**
+#### **B. Melalui Website E-Notulen**
+##### Login ke website utama
+##### Masuk menu **"Riwayat Rapat Saya"**
+##### *Syarat: Email absen wajib benar*
 `;
 
-    // --- RENDER LOGIC ---
+    // --- LOGIKA RENDER MARKMAP ---
     const { Transformer } = window.markmap;
     const { Markmap, loadCSS, loadJS } = window.markmap;
 
@@ -224,28 +203,49 @@
         
         mm = Markmap.create('#markmap', {
             autoFit: true,
-            fitRatio: 0.90, // Slightly tighter fit for presentation
-            duration: 700, // Slower animation for elegance
-            spacingHorizontal: 100, // Wider spacing for readability
-            spacingVertical: 15,
-            paddingX: 30,
-            embedGlobalCSS: true,
-            initialExpandLevel: 0, // <--- UPDATE: Hanya Root Node yang tampil di awal
+            fitRatio: 0.85,
+            duration: 600,
+            spacingHorizontal: 100,
+            spacingVertical: 10,
+            paddingX: 20,
+            initialExpandLevel: 0,
             color: (node) => {
-                // Skema Warna RSUD (Biru, Hijau, Slate)
                 const depth = node.depth;
-                if (depth === 0) return '#3b82f6'; // Root - Blue 500
-                if (depth === 1) {
-                   // Cabang Utama: Variasi warna distinct
-                   const colors = ['#0ea5e9', '#10b981', '#8b5cf6', '#f59e0b'];
-                   return colors[node.state.i % colors.length];
+                if (depth === 0) return '#22d3ee'; // Root tetap Cyan
+                
+                // --- LOGIKA IDENTIFIKASI CABANG UTAMA ---
+                let current = node;
+                let isNotulis = false;
+                let isPeserta = false;
+
+                // Telusuri ke atas hingga menemukan keyword di konten atau mencapai depth 1
+                while (current) {
+                    const content = current.content ? current.content.toUpperCase() : "";
+                    if (content.includes('NOTULIS')) {
+                        isNotulis = true;
+                        break;
+                    }
+                    if (content.includes('PESERTA')) {
+                        isPeserta = true;
+                        break;
+                    }
+                    // Berhenti jika sudah sampai di level tepat di bawah root
+                    if (current.depth === 1) break;
+                    // Penelusuran p (parent) di markmap object
+                    current = current.p; 
                 }
-                return null; // Inherit
+
+                // Notulis: Biru Cerah (#38bdf8)
+                // Peserta: Kuning (#facc15)
+                if (isNotulis) return '#38bdf8';
+                if (isPeserta) return '#facc15';
+                
+                return '#94a3b8'; // Fallback Slate
             }
         }, root);
     }
 
-    function zoomIn() { mm.rescale(1.25); }
+    function zoomIn() { mm.rescale(1.2); }
     function zoomOut() { mm.rescale(0.8); }
     function fitView() { mm.fit(); }
 
