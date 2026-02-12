@@ -92,7 +92,6 @@
         #signature-pad { touch-action: none; background-color: white; display: block; width: 100%; height: 100%; border-radius: 0.75rem; border: 1px dashed #cbd5e1; }
         
         /* --- ESTETIKA BARU LOGIN --- */
-        /* Hapus style login-card-static lama yang kaku, ganti dengan utility classes */
         .login-bg-glow {
             background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15), transparent 70%);
         }
@@ -308,7 +307,7 @@
         <p class="mt-8 text-[10px] text-slate-400">© 2026 Bagian Administrasi dan Umum</p>
     </div>
 
-    <!-- 3. ADMIN APP (Include Sidebar, Dashboard, etc - Same as original but functional) -->
+    <!-- 3. ADMIN APP -->
     <div id="app-admin" class="hidden flex w-full h-full overflow-hidden absolute inset-0 z-0">
         <!-- SIDEBAR -->
         <aside id="sidebar" class="hidden md:flex flex-col w-72 h-full glass-card border-r border-white/20 shadow-2xl z-30 transition-transform duration-300 md:translate-x-0 -translate-x-full fixed md:relative bg-white/80 backdrop-blur-md">
@@ -327,6 +326,10 @@
                 <button onclick="navTo('create')" id="nav-create" class="nav-item w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition flex items-center gap-3"><i class="fa-solid fa-calendar-plus w-5"></i> Buat Jadwal</button>
                 <button onclick="navTo('write')" id="nav-write" class="nav-item w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition flex items-center gap-3"><i class="fa-solid fa-pen-to-square w-5"></i> Tulis Notulen</button>
                 <button onclick="navTo('list')" id="nav-list" class="nav-item w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition flex items-center gap-3"><i class="fa-solid fa-folder-open w-5"></i> Arsip Notulen</button>
+                
+                <!-- MENU RIWAYAT KEHADIRAN -->
+                <button onclick="navTo('history')" id="nav-history" class="nav-item w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left w-5"></i> Riwayat Kehadiran</button>
+                
                 <button onclick="navTo('settings')" id="nav-settings" class="nav-item w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition flex items-center gap-3"><i class="fa-solid fa-gears w-5"></i> Pengaturan</button>
                 <a href="help.html" class="nav-item w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition flex items-center gap-3"><i class="fa-solid fa-circle-question w-5"></i> Pusat Bantuan</a>
                 
@@ -461,6 +464,23 @@
                     <div class="glass-card rounded-2xl overflow-hidden shadow-sm flex flex-col min-h-[400px] bg-white"><div class="overflow-x-auto flex-1"><table class="w-full text-left text-sm"><thead class="bg-blue-50 text-xs uppercase font-bold text-slate-500 border-b border-blue-100"><tr><th class="px-6 py-5">Waktu</th><th class="px-6 py-5">Agenda</th><th class="px-6 py-5">Unit</th><th class="px-6 py-5 text-center">Aksi</th></tr></thead><tbody id="write-table-body" class="divide-y divide-slate-100"><tr><td colspan="4" class="p-10 text-center text-slate-400">Sedang memuat data...</td></tr></tbody></table></div></div>
                 </div>
 
+                <!-- RIWAYAT KEHADIRAN (USER) -->
+                <div id="view-history" class="page-view hidden animate-fade-in max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                        <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></span> Riwayat Rapat Saya</h1>
+                        <button id="btn-refresh-history" onclick="loadHistory()" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-medium hover:bg-slate-50 transition shadow-sm"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col w-full min-h-[400px]">
+                        <div class="hidden md:block overflow-x-auto w-full flex-1">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 text-xs uppercase font-bold text-slate-500 border-b border-slate-200"><tr><th class="px-6 py-5">Waktu</th><th class="px-6 py-5">Agenda</th><th class="px-6 py-5">Unit Penyelenggara</th><th class="px-6 py-5">Status</th><th class="px-6 py-5 text-center">Aksi Lanjutan</th></tr></thead>
+                                <tbody id="history-table-body" class="divide-y divide-slate-100 bg-white text-slate-700"><tr><td colspan="5" class="p-10 text-center text-slate-400">Sedang memuat data...</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div id="mobile-history-container" class="md:hidden space-y-4 p-4 pb-20 bg-slate-50/50"></div>
+                    </div>
+                </div>
+
                 <!-- USERS -->
                 <div id="view-users" class="page-view hidden animate-fade-in max-w-6xl mx-auto">
                     <div class="flex justify-between items-center mb-6"><h1 class="text-2xl font-bold text-slate-800">Manajemen Pengguna</h1><button onclick="loadUsers()" class="text-sm text-blue-600 font-semibold hover:underline">Refresh Data</button></div>
@@ -548,6 +568,7 @@
         let totalItems = 0; 
         let totalPages = 1;
         let currentUser = null;
+        let historyData = []; // Variabel untuk menyimpan data riwayat kehadiran
         let currentAttendanceData = []; let currentMeetingTitle = ""; let currentMeetingDate = ""; let currentKeptDocs = [];
         let currentMeetingId = ""; // Variabel global untuk menyimpan ID rapat saat ini
         let searchTimeout;
@@ -716,7 +737,8 @@
             if(window.innerWidth < 768) toggleSidebar(false);
             if(page === 'list' || page === 'dashboard' || page === 'write') {
                 loadData(1); // Always reset to page 1 on nav change
-            } else if (page === 'create') resetForm();
+            } else if (page === 'history') loadHistory();
+            else if (page === 'create') resetForm();
             else if (page === 'users') loadUsers();
             else if (page === 'profile') loadProfile();
             else if (page === 'settings') loadSettings();
@@ -820,6 +842,134 @@
             searchTimeout = setTimeout(() => {
                 loadData(1); // Reload from page 1 with new search term
             }, 500); // Debounce 500ms
+        }
+
+        function loadHistory() {
+            if(!currentUser) return;
+            const btnRefresh = document.getElementById('btn-refresh-history');
+            const tbody = document.getElementById('history-table-body');
+            
+            if(btnRefresh) { btnRefresh.disabled = true; btnRefresh.querySelector('i').classList.add('fa-spin'); }
+            if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Memuat Riwayat...</td></tr>`;
+
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'getMyAttendanceList', 
+                    email: currentUser.email
+                }) 
+            })
+            .then(res => res.json()).then(resp => {
+                if(btnRefresh) { btnRefresh.disabled = false; btnRefresh.querySelector('i').classList.remove('fa-spin'); }
+                if(resp.status === 'success') {
+                    historyData = resp.data;
+                    renderHistoryTable();
+                } else {
+                    if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Gagal: ${resp.message}</td></tr>`;
+                }
+            }).catch(e => {
+                if(btnRefresh) { btnRefresh.disabled = false; btnRefresh.querySelector('i').classList.remove('fa-spin'); }
+                if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error Koneksi Server</td></tr>`;
+            });
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            const mobileContainer = document.getElementById('mobile-history-container');
+            if (!tbody) return;
+            
+            if (historyData.length === 0) {
+                const emptyHTML = `<div class="p-10 text-center text-slate-400"><div class="flex flex-col items-center justify-center gap-3"><i class="fa-solid fa-clock-rotate-left text-4xl text-slate-300"></i><span class="font-medium text-slate-500">Belum ada riwayat kehadiran rapat.</span><p class="text-xs">Pastikan Anda mengisi daftar hadir menggunakan email ${currentUser.email}</p></div></div>`;
+                tbody.innerHTML = `<tr><td colspan="5">${emptyHTML}</td></tr>`;
+                if(mobileContainer) mobileContainer.innerHTML = emptyHTML;
+                return;
+            }
+            
+            const tableRows = historyData.map(item => {
+                let pdfUrl = '#';
+                let docUrl = '#';
+                let pdfBtnClass = 'text-slate-200 cursor-not-allowed pointer-events-none';
+                let pdfTarget = '';
+                const hasFinal = item.linkFinal && item.linkFinal.length > 5;
+                
+                let statusBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-bold border border-amber-200">Laporan Belum Selesai</span>`;
+                let linkHtml = `<span class="text-slate-600 font-bold text-sm cursor-default">${item.agenda} <i class="fa-solid fa-lock ml-1 text-slate-300 text-[10px]" title="Dokumen belum difinalisasi"></i></span>`;
+
+                if(hasFinal) {
+                    try {
+                        if(item.linkFinal.trim().startsWith('{')) {
+                            const finalLinks = JSON.parse(item.linkFinal);
+                            docUrl = finalLinks.doc;
+                            pdfUrl = finalLinks.pdf;
+                        } else {
+                            pdfUrl = item.linkFinal;
+                        }
+                    } catch(e) {}
+
+                    statusBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold border border-indigo-200"><i class="fa-solid fa-check-circle mr-1"></i> Selesai</span>`;
+                    linkHtml = `<a href="${pdfUrl}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm">${item.agenda} <i class="fa-solid fa-file-pdf text-[10px]"></i></a>`;
+                    pdfBtnClass = 'text-red-500 hover:text-red-700 bg-red-50 border border-red-100 px-2 py-1 rounded';
+                    pdfTarget = '_blank';
+                }
+
+                const actions = `<div class="flex items-center justify-center gap-2">
+                    <a href="?v=absensi&id=${item.id}" target="_blank" class="text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 px-2 py-1.5 rounded font-bold transition flex items-center gap-1 shadow-sm" title="Buka Portal Materi"><i class="fa-solid fa-arrow-up-right-from-square"></i> Portal</a>
+                    <a href="${pdfUrl}" target="${pdfTarget}" class="${pdfBtnClass}" title="Download Laporan PDF"><i class="fa-solid fa-file-pdf"></i></a>
+                    <button onclick="downloadZip('${item.id}', this)" class="text-purple-500 hover:text-purple-700 bg-purple-50 border border-purple-100 px-2 py-1 rounded transition" title="Download Semua Lampiran (ZIP)"><i class="fa-solid fa-file-zipper"></i></button>
+                </div>`;
+
+                return `<tr class="hover:bg-slate-50 border-b border-slate-100 last:border-0 transition text-slate-700">
+                    <td class="px-6 py-4 align-top"><span class="font-bold block">${item.displayTanggal}</span><span class="text-xs text-slate-500">${item.waktu}</span></td>
+                    <td class="px-6 py-4 align-top">${linkHtml}</td>
+                    <td class="px-6 py-4 align-top"><span class="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-bold">${item.unit}</span></td>
+                    <td class="px-6 py-4 align-top">${statusBadge}</td>
+                    <td class="px-6 py-4 align-top text-center">${actions}</td>
+                </tr>`;
+            }).join('');
+            
+            const cardRows = historyData.map(item => {
+                 let pdfUrl = '#';
+                 let pdfBtnClass = 'text-slate-200 cursor-not-allowed pointer-events-none';
+                 let pdfTarget = '';
+                 let title = item.agenda;
+                 const hasFinal = item.linkFinal && item.linkFinal.length > 5;
+
+                 if(hasFinal) {
+                     try {
+                         if(item.linkFinal.trim().startsWith('{')) {
+                             const finalLinks = JSON.parse(item.linkFinal);
+                             pdfUrl = finalLinks.pdf;
+                         } else {
+                             pdfUrl = item.linkFinal;
+                         }
+                     } catch(e) {}
+                     title = `<a href="${pdfUrl}" target="_blank" class="text-blue-600 underline">${item.agenda} <i class="fa-solid fa-file-pdf text-[10px]"></i></a>`;
+                     pdfBtnClass = 'text-red-500 hover:text-red-700 bg-red-50 border border-red-100 px-2 py-1.5 rounded'; 
+                     pdfTarget = '_blank';
+                 }
+
+                 let statusBadge = hasFinal ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold"><i class="fa-solid fa-check-circle mr-1"></i> Selesai</span>` : `<span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-bold">Belum Final</span>`;
+                 
+                 let mobileActions = `<div class="flex justify-between items-center border-t border-slate-100 pt-3 mt-3">
+                     <a href="?v=absensi&id=${item.id}" target="_blank" class="text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 px-3 py-1.5 rounded font-bold transition flex items-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> Portal Hasil</a>
+                     <div class="flex gap-2 text-lg text-slate-400">
+                        <a href="${pdfUrl}" target="${pdfTarget}" class="${pdfBtnClass}"><i class="fa-solid fa-file-pdf"></i></a>
+                        <button onclick="downloadZip('${item.id}', this)" class="text-purple-500 hover:text-purple-700 bg-purple-50 border border-purple-100 px-2 py-1.5 rounded transition"><i class="fa-solid fa-file-zipper"></i></button>
+                     </div>
+                 </div>`;
+
+                 return `<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                     ${hasFinal ? '<div class="absolute top-0 right-0 w-16 h-16 bg-indigo-50 rounded-bl-full -z-10"></div>' : ''}
+                     <div class="flex justify-between items-start mb-2"><span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-500"><i class="fa-solid fa-calendar text-[10px] mr-1"></i> ${item.displayTanggal}</span> ${statusBadge}</div>
+                     <h3 class="font-bold text-lg text-slate-800 mb-2 leading-tight">${title}</h3>
+                     <p class="text-xs text-slate-500 font-bold uppercase tracking-wide mb-1">Unit: ${item.unit}</p>
+                     <p class="text-[10px] text-slate-400 mb-1"><i class="fa-solid fa-user-pen mr-1"></i> Notulis: ${item.pencatatNama || '-'}</p>
+                     ${mobileActions}
+                 </div>`;
+            }).join('');
+
+            tbody.innerHTML = tableRows;
+            if(mobileContainer) mobileContainer.innerHTML = cardRows;
         }
 
         function renderPaginatedTable() {
@@ -1061,7 +1211,6 @@
 
         function closeQrModal() { document.getElementById('modal-qrcode').classList.add('hidden'); }
         
-        // --- UPDATED: VIEW ATTENDANCE FUNCTION ---
         function viewAttendance(id, title, date, time, btn) {
              setBtnLoading(btn, true);
              currentMeetingTitle = title;
@@ -1124,7 +1273,6 @@
 
         function closeAttendanceModal() { document.getElementById('modal-attendance').classList.add('hidden'); }
 
-        // --- UPDATED: BACKEND GENERATION METHOD ---
         function downloadAttendanceWithImages() {
             const btn = document.getElementById('btn-download-att');
             const id = currentMeetingId; 
@@ -1175,7 +1323,6 @@
             });
         }
         
-        // FUNGSI BROADCAST RESULT (SEND EMAIL)
         function broadcastResult(id, btn) {
             const item = allData.find(x => x.id === id);
             if (!item) return;
@@ -1213,7 +1360,6 @@
             })
         }
 
-        // --- NEW FUNCTION: DOWNLOAD ZIP ---
         function downloadZip(id, btn) {
             setBtnLoading(btn, true); // Loading state on button
             
