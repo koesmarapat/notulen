@@ -239,11 +239,26 @@
                     Selengkapnya <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
                 </div>
             </div>
+            
+            <!-- CARD 7: RIWAYAT KEHADIRAN (NEW) -->
+            <div onclick="openModal('modal-history')" class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.7s;">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-clock-rotate-left text-8xl"></i>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center text-white text-2xl mb-6 shadow-lg shadow-rose-500/30">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-white">Riwayat Kehadiran</h3>
+                <p class="text-sm text-blue-100/70">Akses mandiri arsip dan materi rapat yang pernah Anda ikuti.</p>
+                <div class="mt-6 flex items-center text-xs font-bold text-rose-300 uppercase tracking-wider group-hover:text-white transition">
+                    Selengkapnya <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
 
         </div>
     </main>
 
-    <!-- VIDEO TUTORIAL SECTION (NEW) -->
+    <!-- VIDEO TUTORIAL SECTION -->
     <section class="px-6 lg:px-12 pb-16 max-w-5xl mx-auto w-full animate-slide-up" style="animation-delay: 0.2s;">
         <div class="text-center mb-8">
             <span class="text-red-300 font-bold tracking-widest text-xs uppercase bg-white/10 px-3 py-1 rounded-full border border-red-500/30"><i class="fa-brands fa-youtube mr-2"></i>Video Tutorial</span>
@@ -254,16 +269,21 @@
         <div class="glass-card rounded-3xl p-3 md:p-6 overflow-hidden shadow-2xl shadow-blue-900/50 relative group">
             <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-600 opacity-20 blur group-hover:opacity-40 transition duration-1000"></div>
             <div class="relative w-full pb-[56.25%] h-0 rounded-2xl overflow-hidden border border-white/20 bg-black/50">
-                <!-- YouTube Iframe Responsive Wrapper -->
+                <!-- YouTube Iframe Fixed for Local/Restricted Envs -->
                 <iframe 
-                    class="absolute top-0 left-0 w-full h-full"
-                    src="https://www.youtube.com/embed/ashYLrirM0U?si=CCWmn4lywhjmZHOu" 
-                    title="Tutorial E-Notulen RSUD dr. R. Koesma" 
+                    class="absolute top-0 left-0 w-full h-full z-10"
+                    src="https://www.youtube.com/embed/ashYLrirM0U?rel=0" 
+                    title="Tutorial E-Notulen" 
                     frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowfullscreen>
                 </iframe>
+            </div>
+            <!-- Fallback Link if Iframe Blocked -->
+            <div class="text-center mt-4">
+                <a href="https://www.youtube.com/watch?v=ashYLrirM0U" target="_blank" class="inline-flex items-center gap-2 text-xs font-medium text-blue-300 hover:text-white transition">
+                    <i class="fa-solid fa-external-link-alt"></i> Jika video tidak muncul, tonton langsung di YouTube
+                </a>
             </div>
         </div>
     </section>
@@ -278,7 +298,7 @@
 
         <div class="space-y-4">
             
-            <!-- FAQ 1 (UPDATED: ALUR PENGGUNAAN) -->
+            <!-- FAQ 1 -->
             <div class="faq-item glass-card rounded-xl overflow-hidden group">
                 <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
                     <span class="font-bold text-white group-hover:text-cyan-300 transition">1. Bagaimana alur singkat penggunaan aplikasi E-Notulen ini?</span>
@@ -297,7 +317,7 @@
                 </div>
             </div>
 
-            <!-- FAQ 2 (REPLACED: WHO CAN USE) -->
+            <!-- FAQ 2 -->
             <div class="faq-item glass-card rounded-xl overflow-hidden group">
                 <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
                     <span class="font-bold text-white group-hover:text-cyan-300 transition">2. Siapa saja yang dapat memanfaatkan aplikasi E-Notulen ini?</span>
@@ -396,7 +416,7 @@
                 </button>
                 <div class="faq-content bg-white/5 px-6">
                     <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
-                        Sistem E-Notulen menerapkan kebijakan <strong>Privasi Data User</strong>. Setiap notulis (User) hanya memiliki akses penuh terhadap data rapat yang mereka buat sendiri. Anda tidak dapat melihat, mengedit, atau menghapus arsip notulen milik rekan kerja lain, begitu pula sebaliknya. Akses monitoring seluruh data hanya dimiliki oleh pengguna dengan hak akses <strong>ADMIN</strong>.
+                        Sistem E-Notulen menerapkan kebijakan <strong>Privasi Data User</strong>. Setiap notulis (User) hanya memiliki akses penuh terhadap data rapat yang mereka buat sendiri. Anda tidak dapat melihat, mengedit, atau menghapus arsip notulen milik rekan kerja lain, begitu pula sebaliknya. Akses monitoring seluruh data hanya dimiliki oleh pengguna dengan hak akses <strong>ADMIN</strong>. (Namun, Anda tetap bisa melihat arsip rapat di mana Anda terdaftar hadir pada menu <em>Riwayat Kehadiran</em>).
                     </p>
                 </div>
             </div>
@@ -410,6 +430,19 @@
                 <div class="faq-content bg-white/5 px-6">
                     <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
                         Tentu saja. E-Notulen didesain <em>Responsive</em> (menyesuaikan layar). Tampilan di HP akan otomatis berubah menjadi mode mobile card agar mudah dibaca. Sidebar menu akan tersembunyi di tombol hamburger agar tidak memenuhi layar kecil.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 11 (NEW) -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">11. Bagaimana cara melihat materi rapat yang pernah saya ikuti sebagai peserta?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Anda dapat masuk ke aplikasi menggunakan akun Google Anda, lalu buka menu <strong>"Riwayat Kehadiran"</strong> di sidebar sebelah kiri. Sistem akan secara otomatis mengumpulkan semua arsip rapat di mana Anda pernah tercatat hadir (berdasarkan kecocokan alamat Email). Dari menu tersebut, Anda dapat mengunduh dokumen Notulen (PDF) dan seluruh file lampirannya secara mandiri.
                     </p>
                 </div>
             </div>
@@ -659,6 +692,40 @@
             </div>
             <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
                 <button onclick="closeModal('modal-admin')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: HISTORY (NEW) -->
+    <div id="modal-history" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-history')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="bg-rose-50 p-8 border-b border-rose-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Riwayat Kehadiran</h3>
+                        <p class="text-sm text-slate-500">Akses arsip khusus untuk peserta rapat.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-8 space-y-4">
+                <p class="text-sm text-slate-600 mb-4">Sebagai peserta biasa (meskipun bukan notulis/admin), Anda dapat melihat daftar semua rapat yang pernah Anda ikuti di aplikasi ini.</p>
+                
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-envelope-circle-check text-rose-500 mr-2"></i>Syarat Utama</h4>
+                    <p class="text-xs text-slate-600">Sistem mengenali Anda berdasarkan <strong>Email</strong>. Pastikan Anda selalu mengisi kolom Email (atau menggunakan fitur login/autofill Google) saat melakukan absensi digital agar riwayatnya otomatis masuk ke akun Anda.</p>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-download text-rose-500 mr-2"></i>Fitur Download Mandiri</h4>
+                    <p class="text-xs text-slate-600">Melalui menu "Riwayat Kehadiran", Anda dapat langsung mengunduh <strong>Laporan Resmi (PDF)</strong> jika sudah diselesaikan oleh notulis, atau mengunduh seluruh materi presentasi rapat dalam format <strong>ZIP</strong>.</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-history')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
             </div>
         </div>
     </div>
