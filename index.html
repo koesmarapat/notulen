@@ -2,8 +2,15 @@
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>E Notulen | RSUD dr. R. Koesma</title>
+    
+    <!-- PWA MANIFEST & THEME -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/srpcom/enotulen/refs/heads/main/new%20logo%20rsud%202025%20kecil.png">
     
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/srpcom/enotulen/refs/heads/main/new%20logo%20rsud%202025%20kecil.png">
 
@@ -25,9 +32,7 @@
     <!-- ERROR HANDLER -->
     <script>
         window.onerror = function(msg, url, line) {
-            // Abaikan error resize observer yang umum dan tidak berbahaya
             if(msg.includes("ResizeObserver")) return;
-            // Abaikan error jika google belum defined saat loading awal (karena sudah dihandle retry)
             if(msg.includes("google is not defined")) return;
             console.error("System Error: " + msg);
         };
@@ -2075,3 +2080,5 @@
     </script>
 </body>
 </html>
+
+}
